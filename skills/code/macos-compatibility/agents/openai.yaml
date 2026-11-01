@@ -1,0 +1,3 @@
+interface:
+  display_name: "macOS Compatibility"
+  short_description: "Ship to macOS 12 through 15"

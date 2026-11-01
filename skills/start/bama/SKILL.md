@@ -38,6 +38,7 @@ view, and the real icon in every snapshot.
 | Make it fast: hangs, stutter, GPU, video, memory | `performance` |
 | Let Claude Code, Codex, or scripts drive the app: a CLI, an MCP server | `agent-cli` |
 | Refactor, clean up, or check the code as it grows | `improve-architecture` |
+| Run on an older macOS, from 12 to 15 | `macos-compatibility` |
 
 ## Design
 

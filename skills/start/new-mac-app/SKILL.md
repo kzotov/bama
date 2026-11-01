@@ -51,6 +51,8 @@ binary in a real `.app` bundle. An agent can read and edit every file.
 
    On macOS 15, set `.macOS(.v15)` in `Package.swift` and
    `LSMinimumSystemVersion` to 15 in `Info.plist.in`, and skip Liquid Glass APIs.
+   To support an older macOS than the one you build on, call the Skill tool
+   with `macos-compatibility`.
 
 2. Pick the name (one UpperCamelCase word) and bundle id (reverse DNS). If
    `docs/BRIEF.md` exists, use its name.
