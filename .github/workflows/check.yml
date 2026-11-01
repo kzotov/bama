@@ -1,0 +1,43 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The same check AGENTS.md asks for before every change.
+      - name: Validate the plugin
+        run: npx -y @anthropic-ai/claude-code plugin validate . --strict
+      # Folders, plugin.json, README table, router, relative links, em dashes.
+      - name: Check skills and links
+        run: python3 -I scripts/check-skills.py
+
+  template:
+    # The template targets macOS 26 with Swift 6.2.
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scaffold an app
+        run: zsh skills/start/new-mac-app/scripts/new-app.sh Demo com.example.demo "$RUNNER_TEMP"
+      # A scaffold that keeps a placeholder does not build (issue 7).
+      - name: No placeholders left
+        run: |
+          if grep -rIl -e __APP_NAME__ -e __BUNDLE_ID__ "$RUNNER_TEMP/Demo" --exclude-dir=.git; then
+            echo "placeholders left in the files above"
+            exit 1
+          fi
+      - name: Build the app
+        working-directory: ${{ runner.temp }}/Demo
+        run: ./build.sh
+      - name: Unit tests
+        working-directory: ${{ runner.temp }}/Demo
+        run: swift test --scratch-path "$HOME/Library/Developer/Demo/test-build"

@@ -42,5 +42,5 @@ Follow Matt Pocock's `writing-for-agents` rules:
 1. Create `skills/<stage>/<name>/SKILL.md` and `agents/openai.yaml`.
 2. Add it to `plugin.json` `skills`, the README table, and the router
    (`skills/start/bama/SKILL.md`).
-3. Run `claude plugin validate . --strict`.
+3. Run `claude plugin validate . --strict` and `scripts/check-skills.py`. CI runs both, and builds the template.
 4. Keep `version` in `plugin.json` at 1.0.0 until the first release. After that, bump it, so installed copies update.
