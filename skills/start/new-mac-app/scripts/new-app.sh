@@ -31,7 +31,7 @@ mv "$dest/Tests/__APP_NAME__KitTests" "$dest/Tests/${name}KitTests"
 grep -rlI "__APP_NAME__\|__BUNDLE_ID__" "$dest" | while read -r f; do
   sed -i '' -e "s/__APP_NAME__/$name/g" -e "s/__BUNDLE_ID__/$bundle/g" "$f"
 done
-chmod +x "$dest/build.sh" "$dest/tools/make_icon.sh" "$dest/tools/icon_review.sh" "$dest/tools/grid-lint.sh" "$dest/tools/check-layout.swift" "$dest/tools/snap.sh" "$dest/tools/selftest.sh"
+chmod +x "$dest/build.sh" "$dest/tools/make_icon.sh" "$dest/tools/icon_review.sh" "$dest/tools/grid-lint.sh" "$dest/tools/check-layout.swift" "$dest/tools/snap.sh" "$dest/tools/selftest.sh" "$dest/tools/check-binary.sh"
 
 cd "$dest"
 [[ -d .git ]] || git init -q

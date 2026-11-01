@@ -27,6 +27,21 @@ mode.
 ./build.sh            # release build, installs ~/Applications/<AppName>.app
 ./build.sh --debug    # faster build while iterating
 ./build.sh --open     # also restarts the app so the user sees the new build
+./build.sh --universal  # one binary for Apple silicon and Intel
+```
+
+Build releases you hand to other people with `--universal`, unless the
+brief says Apple silicon only. A build made on an Apple silicon Mac has
+only an arm64 slice, and Intel Macs refuse to open it.
+
+After signing, `build.sh` runs `tools/check-binary.sh` on the bundle. It
+fails the build when a Mach-O file lacks an architecture you asked for, or
+was linked for a newer macOS than `LSMinimumSystemVersion` promises. Run it
+on any bundle, including one built by Xcode:
+
+```bash
+tools/check-binary.sh ~/Applications/<AppName>.app "arm64 x86_64"
+# PASS Contents/MacOS/<AppName> (arm64) macOS 26.0, promise 26.0
 ```
 
 Read the errors, fix them, and build again. Fix the first error first: later

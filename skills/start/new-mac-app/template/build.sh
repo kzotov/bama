@@ -6,12 +6,19 @@
 # Usage: ./build.sh            release build, install
 #        ./build.sh --debug    debug build, install
 #        ./build.sh --open     install, then quit the running copy and open the new one
+#        ./build.sh --universal  one binary for Apple silicon and Intel (release builds)
 set -euo pipefail
 here=${0:A:h}
 name="__APP_NAME__"
 scratch="$HOME/Library/Developer/$name/build"
 config=release
 [[ " $* " == *" --debug "* ]] && config=debug
+arch_flags=()
+archs=""
+if [[ " $* " == *" --universal "* ]]; then
+  arch_flags=(--arch arm64 --arch x86_64)
+  archs="arm64 x86_64"
+fi
 
 # Sign with your Apple Development certificate when you have one (Xcode >
 # Settings > Accounts). Otherwise sign ad hoc, which is fine for your own Mac.
@@ -21,14 +28,16 @@ if [[ -z "$identity" ]]; then
 fi
 [[ -n "$identity" ]] || identity=-
 
-swift build -c $config --package-path "$here" --scratch-path "$scratch" 2>&1 | grep -E "error|warning|Build complete" | grep -v "^\[" || true
-bin="$scratch/$config/$name"
+build=(swift build -c $config --package-path "$here" --scratch-path "$scratch" $arch_flags)
+$build 2>&1 | grep -E "error|warning|Build complete" | grep -v "^\[" || true
+# The output folder depends on the architectures and the SwiftPM version. Ask.
+bin="$($build --show-bin-path)/$name"
 [[ -x "$bin" ]] || { echo "build failed"; exit 1; }
 # swift build can report success while an edited file failed to compile. Catch that.
 stale=$(find "$here/Sources" -name '*.swift' -newer "$bin" | head -1)
 if [[ -n "$stale" ]]; then
   echo "build failed: binary is older than $stale"
-  swift build -c $config --package-path "$here" --scratch-path "$scratch" 2>&1 | grep -E "error" | head -20
+  $build 2>&1 | grep -E "error" | head -20
   exit 1
 fi
 
@@ -48,7 +57,14 @@ if [[ -d "$here/Icon/AppIcon.icon" ]]; then
 fi
 xattr -cr "$app"
 codesign --force --sign "$identity" "$app" 2>&1 | grep -v "replacing existing signature" || true
-echo "installed $app (signed: ${identity})"
+# Every binary must run on the macOS that Info.plist promises, with every
+# architecture asked for.
+if ! check=$("$here/tools/check-binary.sh" "$app" "$archs"); then
+  print -r -- "$check" | grep -v '^PASS'
+  echo "build failed: binary check"
+  exit 1
+fi
+echo "installed $app (signed: ${identity}${archs:+, $archs})"
 
 if [[ " $* " == *" --open "* ]]; then
   osascript -e "quit app \"$name\"" 2>/dev/null || true

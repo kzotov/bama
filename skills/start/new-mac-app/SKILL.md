@@ -38,6 +38,7 @@ binary in a real `.app` bundle. An agent can read and edit every file.
     make_icon.sh         Icon/AppIcon.icon -> Resources/Assets.car + AppIcon.icns (actool)
     icon_review.sh       renders every icon look into one PNG (ictool)
     icon_sheet.swift     joins the renders for icon_review.sh
+    check-binary.sh      every Mach-O: architectures and minimum macOS match Info.plist
 ```
 
 ## Steps
