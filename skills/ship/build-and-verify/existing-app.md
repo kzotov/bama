@@ -12,6 +12,7 @@ XcodeGen, has none of these. Map each piece first, then follow the skills.
 - Unit tests without a host app
 - Self-test in a running app
 - Moving to Swift 6
+- AppKit and Objective-C apps
 
 ## Map the template pieces
 
@@ -128,3 +129,65 @@ Checks worth adding to any app:
   Mark each such closure `{ @Sendable in ... }` and hop to the main actor
   inside it where needed. Then run the smoke step.
 - Common errors and fixes: see the `swift-swiftui` skill, "Swift 6 errors".
+
+## AppKit and Objective-C apps
+
+An app written in Objective-C or Objective-C++ (`.m`, `.mm`) with AppKit
+window controllers needs no SwiftUI to follow the ship and design skills.
+Map the pieces to what it already has:
+
+| Template piece | Objective-C AppKit app |
+| --- | --- |
+| `./build.sh` | `xcodebuild`, or a script that runs `xcrun clang` (`.m`) and `xcrun clang++ -std=c++17` (`.mm`) with `-fobjc-arc`, then links and bundles |
+| `APP_SNAPSHOT` mode | A `--ui-snapshots` launch flag that opens each window in light and dark, writes one PNG per state, and quits |
+| `swift test` | One small test binary per pure source file: `xcrun clang++ -fobjc-arc Tests/x.mm build/objects/X.o -framework Foundation -o build/x-tests`, run it, read the exit code |
+| `--selftest` | The same flag pattern, or a bridge command |
+| Swift 6 isolation | Not needed. Assert UI work runs on the main thread: `NSAssert(NSThread.isMainThread, ...)` |
+
+Snapshot the window, not the screen. Capture by window number with
+`screencapture -l <windowNumber>` or ScreenCaptureKit, which keeps native
+controls and materials. Fall back to `cacheDisplayInRect:toBitmapImageRep:` only in
+a headless CI run with no GUI session: it draws materials blank. Set
+`NSApp.appearance` to Aqua, then Dark Aqua, to get both modes in one run.
+A shell script then checks that every expected PNG exists and is not empty,
+so a window that failed to open fails the build.
+
+The design skills speak SwiftUI. Their rules hold in AppKit, with these
+equivalents:
+
+| SwiftUI | AppKit |
+| --- | --- |
+| `NavigationSplitView` | `NSSplitViewController` with a sidebar item (`sidebarWithViewController:`) |
+| `.toolbar` | `NSToolbar` with `NSToolbarItem` and a delegate |
+| `List` | `NSTableView` or `NSOutlineView`, `style` set to `NSTableViewStyleInset` or `NSTableViewStyleSourceList` |
+| `Settings` scene | An `NSWindowController` with an `NSTabViewController` in toolbar style |
+| `MenuBarExtra` | `NSStatusItem` with an `NSMenu` or an `NSPopover` |
+| `.commands` | `NSMenu` items wired to first-responder selectors |
+| `@AppStorage` | `NSUserDefaults` |
+
+### Swift-only APIs from Objective-C
+
+WidgetKit, App Intents, and other newer frameworks have no Objective-C
+interface. Put a small Swift class in the target and call it from
+Objective-C through the generated `<Target>-Swift.h` header:
+
+```swift
+import WidgetKit
+
+@objc(WidgetTimelineReloader)
+final class WidgetTimelineReloader: NSObject {
+    @objc static func reload() {
+        WidgetCenter.shared.reloadTimelines(ofKind: "MainWidget")
+    }
+}
+```
+
+```objc
+#import "MyApp-Swift.h"
+[WidgetTimelineReloader reload];
+```
+
+Keep the shim to static methods with plain types (`NSString`,
+`NSDictionary`, `BOOL`), so the Objective-C side never needs Swift types.
+Mark it `@available` when the API is newer than the app's floor.
+

@@ -14,7 +14,7 @@ A change is done when four things are true:
 4. The grid checks pass (`layout-grid` skill).
 
 App not made from the `new-mac-app` template (Xcode, XcodeGen, a menu bar
-utility, Swift 5)? Map the commands below with
+utility, Swift 5, Objective-C and AppKit)? Map the commands below with
 [existing-app.md](existing-app.md) first.
 
 Do not report a UI change as done from the code alone. SwiftUI code that

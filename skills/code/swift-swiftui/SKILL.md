@@ -121,6 +121,11 @@ SwiftUI covers windows, lists, and forms. AppKit is still the answer for:
 For system hooks (hotkeys, Accessibility, screen capture), call the Skill
 tool with `os-integrations`.
 
+An app written in Objective-C and AppKit keeps its code. Add Swift only for
+APIs with no Objective-C interface (WidgetKit, App Intents), behind a small
+`@objc` class. See "AppKit and Objective-C apps" in
+[../../ship/build-and-verify/existing-app.md](../../ship/build-and-verify/existing-app.md).
+
 ## Compiler errors
 
 | Error | Fix |
