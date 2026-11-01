@@ -59,6 +59,7 @@ view, and the real icon in every snapshot.
 | Build it and look at every page | `build-and-verify` |
 | Tests, a self-test, or an agent that drives the running app | `test-mac-app` |
 | Work through the backlog on its own | `improve-loop` |
+| Share it with other people: a notarized DMG, automatic updates | `release` |
 
 ## Done when
 

@@ -47,6 +47,7 @@
     "./skills/design/app-icon",
     "./skills/ship/build-and-verify",
     "./skills/ship/test-mac-app",
+    "./skills/ship/release",
     "./skills/ship/improve-loop"
   ]
 }
