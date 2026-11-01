@@ -19,7 +19,7 @@ Code for every row is in [recipes.md](recipes.md).
 | List other apps' windows | `CGWindowListCopyWindowInfo` | None (titles need Screen Recording) |
 | Menu bar item | `MenuBarExtra` (SwiftUI) or `NSStatusItem` | None |
 | Live status in the menu bar (a timer, a sync) | `MenuBarExtra` with a changing label. Live Activities on a Mac only mirror a paired iPhone | None |
-| Desktop and Notification Center widgets | WidgetKit extension target (Xcode build, like App Intents) | None |
+| Desktop and Notification Center widgets | WidgetKit extension target (Xcode build, like App Intents). Live app state: [widgets.md](widgets.md) | None |
 | Find the app's content in Spotlight | Core Spotlight `CSSearchableIndex` | None |
 | Preview the app's own file type in Finder (Space) | Quick Look preview extension | None |
 | Menu-bar-only app, no Dock icon | `LSUIElement = YES` in Info.plist | None |
@@ -76,6 +76,9 @@ Prefer the row with no permission when two rows solve the same job.
   color. Standard margins 16 pt. A click deep-links to the exact place;
   buttons and toggles in it run App Intents. Never a whole app squeezed
   into a widget.
+  A widget that shows live app state (a running timer, a sync status)
+  needs an App Group, a snapshot, and reloads only on visible changes:
+  follow [widgets.md](widgets.md).
 - A snippet is the view an App Intent shows in Spotlight, Siri, or
   Shortcuts: a result (with Done) or a confirmation (Cancel plus a button
   that names the action, never "OK"). At most 400 pt tall, readable in
